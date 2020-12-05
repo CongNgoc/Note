@@ -1,0 +1,11 @@
+Step1: Download Oracle JDBC
+
+Step2: mvn install file 
+
+Step3: add to pom.xml file
+
+
+Link Ref: https://mkyong.com/maven/how-to-add-oracle-jdbc-driver-in-your-maven-local-repository/
+http://www.springfuse.com/install-oracle-jdbc-driver-in-maven-repository
+
+mvn install:install-file -DgroupId=com.oracle -DartifactId=ojdbc6 -Dversion=11.2.0.4 -Dpackaging=jar -Dfile=ojdbc6.jar -DgeneratePom=true
