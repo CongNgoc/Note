@@ -220,7 +220,7 @@ Both CL and RF affect performance
 Lab 1 – Overview and Setup
 demonstrate how the WRITE and READ look
 
-First, we’ll bring up a 3-node Scylla Docker cluster.
+First, we’ll bllring up a 3-node Scylla Docker cluster.
 	Set up a Docker Container with one node, called Node_X:
 	
 		docker run --name Node_X -d scylladb/scylla

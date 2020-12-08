@@ -1,0 +1,1 @@
+/home/congngoc2105/Project/BigData/resource/data.txt

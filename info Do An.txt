@@ -21,6 +21,34 @@ Mô tả và áp dụng các giải thuật khai thác dữ liệu song song, ph
 
 https://courses.uit.edu.vn/pluginfile.php?file=%2F253105%2Fmod_resource%2Fcontent%2F1%2FBigData_Y%C3%AAu%20c%E1%BA%A7u%20B%C3%A0i%20t%E1%BA%ADp%20Cu%E1%BB%91i%20k%E1%BB%B3_v4.pdf
 
+Dataset
+Context 
+These files contain metadata for all 65,000 movies listed in. Full MovieLens Dataset. The dataset consists of movies released on or before July 2017. Data points include cast, crew, plot keywords, budget, revenue, posters, release dates, languages, produMion companies, countries, TMDEI vote counts and vote averages. This dataset also has files containing 26 million ratings from 270,000 users for all 45,000 movies. Ratings are on a scale 00,5 and have been obtained from the official GroupLem vvebsite 
+
+https://www.kaggle.com/rounakbanik/the-movies-dataset
+
+K-mean & Cosine similarity
+
+K-mean: phan cum du lieu
+
+Cosine similarity: do tuong dong cosin
+
+spark
+Read file (flat) => line => map => group => data is processed
+
+kmean agorithm
+=> Bieu do cac cluster
+
+Cosine similarity =  tinh cosin?
+
+
+
+
+
+
+
+
+
 
 
 Môn: Cloud Computing
