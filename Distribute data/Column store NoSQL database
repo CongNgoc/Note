@@ -1,0 +1,24 @@
+Column store NoSQL database
+In column-oriented NoSQL databases, data is stored in cells grouped in columns of data rather than as rows of data. Columns are logically grouped into column families. Column families can contain a virtually unlimited number of columns that can be created at runtime or while defining the schema. Read and write is done using columns rather than rows. Column families are groups of similar data that is usually accessed together. As an example, we often access customers’ names and profile information at the same time, but not the information on their orders.
+
+The main advantages of storing data in columns over relational DBMS are fast search/access and data aggregation. Relational databases store a single row as a continuous disk entry. Different rows are stored in different places on the disk while columnar databases store all the cells corresponding to a column as a continuous disk entry, thus making the search/access faster.
+
+Each column family can be compared to a container of rows in an RDBMS table, where the key identifies the row and the row consists of multiple columns. The difference is that various rows do not have to have the same columns, and columns can be added to any row at any time without having to add them to other rows.
+
+Use cases
+Developers mainly use column databases in:
+
+Content management systems
+Blogging platforms
+Systems that maintain counters
+Services that have expiring usage
+Systems that require heavy write requests (like log aggregators)
+Column store databases should be avoided if you have to use complex querying or if your querying patterns frequently change. Also avoid them if you don’t have an established database requirement, a trend which we are beginning to see in new systems.
+
+Examples of column store NoSQL databases are Cassandra and Apache Hadoop Hbase.
+
+
+
+b. Column-oriented databases (column-family). Cơ sở dữ liệu column-family lưu trữ dữ liệu trong nhiều cột trong mỗi dòng với key cho từng dòng. Column families là một nhóm các dữ liệu liên quan được truy cập cùng với nhau. Ví dụ, với khách hàng, chúng ta thường xuyên sử dụng thông tin cá nhân trong cùng một lúc chứ không phải hóa đơn của họ. Cassandra là một trong số cơ sở dữ liệu column-family phổ biến. Ngoài ra còn có một số cơ sở dữ liệu khác như HBase, Hypertable và Amazon DynamoDB. Cassandra có thể được miêu tả nhanh và khả năng mở rộng dễ dàng với các thao tác viết thông qua các cụm. Các cụm không có node master, vì thế bất kỳ việc đọc và ghi nào đểu có thể được xử lý bởi bất kỳ node nào trong cụm
+
+https://viblo.asia/p/gioi-thieu-ve-nosql-database-djeZ1a9jZWz

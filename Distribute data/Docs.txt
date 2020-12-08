@@ -1,0 +1,280 @@
+https://www.overleaf.com/
+
+Partition Tolerance: Phân vùng ??? Distribute data
+
+ =================================================================
+ =================================================================
+  LESSTION 1: Overview
+
+1.True or False: Scylla prefers consistency over availability?
+false
+
+2.Which data model does Scylla use?
+Wide column
+
+3. in scylla Consistency and Availability are preferred over Partition Tolerance
+
+4. Scylla was written in: C++
+
+5. According to the CAP theorem, CAP stands for:
+Consistency, Availability, Partition Tolerance
+
+6. Scylla is a drop-in replacement for which database?
+Apache Cassandra
+
+
+-------------------------------------
+
+Benefits and Scylla Flavors
+So why do we exist? Why have we spent so much effort building this technology? There are four key benefits that make us stand out, and they are:
+- A lower node count
+- Consistent performance
+- Reduced complexity
+- Apache Cassandra compatibility
+
+Scylla is Apache Cassandra from an architectural standpoint, from a use case standpoint and from an API standpoint. It’s just Apache Cassandra with a lower node count, consistent performance and the reduced complexity. Scylla is not only a drop-in replacement for Apache Cassandra, it can also be used with integrated solutions, such as Presto, Spark, Kubernetes or Kairos. Scylla provides you with drivers to get the job done. Whatever you’re using to speak CQL, we got you covered. If you’re using the Java driver, or you’re using the C driver, or the C++, driver or the C-sharp driver, or the PHP driver, or the GO driver. Whatever you’re using, you can simply take the current toolset and the current engineering, and just change the IP address to a Scylla cluster, and it will simply work.
+
+1. Question
+True or False: by carefully choosing when and how to perform compaction, Scylla provides very consistent performance
+
+True
+
+2. Question
+True or False: Scylla is offered in three variants: Open Source, Enterprise and  Cloud
+
+True
+
+3. Question
+Scylla’s advantage is:
+- A lower node count
+- Consistent performance
+- Reduced complexity
+- Apache Cassandra compatibility
+
+
+---------------------------------------
+Data model and architeacture
+1. Question
+A cluster is a collection of: 
+Nodes
+
+(A Scylla keyspace is a collection of tables with attributes that define how data is replicated on nodes. A keyspace is analogous to a database in SQL. When a new keyspace is created, the user sets a numerical attribute, the replication factor, that defines how data is replicated on nodes.)
+
+
+2. Question
+True or False: a write operation may replicate the data to more than one node, to ensure high availability
+
+True
+
+3. Question
+True or False: In Scylla, each Keyspace can contain only one or two tables
+
+
+
+(A Keyspace is a top-level container that stores tables with attributes that define how data is replicated on nodes. It defines a number of options that apply to all the tables it contains, most prominently of which is the replication strategy used by the Keyspace.)
+
+
+ =================================================================
+ =================================================================
+  LESSTION 2: Introduce
+ Lab 1: Install and Start ScyllaDB
+ running a single instance using Docker. 
+
+ First, we’ll start a single instance and call it ScyllaU:
+ docker run --name scyllaU -d scylladb/scylla:4.1.0
+
+ Notice that some files might be downloaded in this step. Depending on your setup, it might look different than in the above asciinema. After waiting for a few seconds, we’ll verify that the cluster is up and running with the Nodetool Status command:
+ docker exec -it scyllaU nodetool status
+
+ Finally, we use the CQL Shell to interact with Scylla:
+ docker exec -it scyllaU cqlsh
+
+ The CQL Shell allows us to run Cassandra Query Language commands on Scylla, as we will see in the next part.
+
+Lab 2: Basic CQL Operations
+ Let’s start by making sure our node is  still up:
+	docker exec -it scyllaU nodetool status
+ Run a CQL shell:
+ 	docker exec -it scyllaU cqlsh 
+ Create a keyspace called “mykeyspace”:
+ 	CREATE KEYSPACE mykeyspace WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1};
+
+ Keep in mind that SimpleStrategy should not be used in production.
+	Next, create a table with three columns: user id, first name, and last name, and insert some data:
+
+	use mykeyspace; 
+	CREATE TABLE users ( user_id int, fname text, lname text, PRIMARY KEY((user_id))); 
+
+ Insert into the newly created table two rows:
+	insert into users(user_id, fname, lname) values (1, 'rick', 'sanchez'); 
+	insert into users(user_id, fname, lname) values (4, 'rust', 'cohle'); 
+
+ Read the table contents:
+ select * from users;
+
+
+ =================================================================
+ =================================================================
+ LESSTION3: High Availability
+
+Bài 1:RF
+ Scylla sao chép dữ liệu theo chiến lược sao chép mà bạn chọn. Chiến lược này sẽ xác định vị trí của dữ liệu được sao chép. Scylla chạy các nút trong một vòng băm. Tất cả các nút đều bình đẳng: không có tập hợp chính, phụ hoặc bản sao.
+
+ Hệ số sao chép (RF) tương đương với số nút nơi dữ liệu (hàng và phân vùng) được sao chép. Dữ liệu được sao chép đến nhiều nút (RF = N).
+
+ RF của một có nghĩa là chỉ có một bản sao của một hàng trong một cụm và không có cách nào để khôi phục dữ liệu nếu nút bị xâm phạm hoặc gặp sự cố. RF = 2 có nghĩa là có hai bản sao của một hàng trong một cụm. Một RF ít nhất ba được sử dụng trong hầu hết các hệ thống.
+
+ Dữ liệu luôn được sao chép tự động. Các thao tác đọc hoặc ghi có thể xảy ra đối với dữ liệu được lưu trữ trên bất kỳ nút nào được sao chép.
+
+ 1. Question
+In the following image what is the RF?
+RF = 3
+RF: bằng số nút nơi dữ liệu được replication(sao chép)
+
+2. Question
+Among the options in the list below, the highest availability will be achieved with:
+RF = 3
+
+3. Question	
+The Replication Factor (RF) determines:
+How many copies of the data exist
+
+-----------------------------------------------
+Bài 2: Consistency Level
+
+ Mức nhất quán (CL) xác định có bao nhiêu bản sao trong một cụm phải thừa nhận một thao tác đọc hoặc ghi trước khi nó được coi là thành công.
+
+ Một số phổ biến nhất Consistency Levels được sử dụng là:
+ 	- ANY: Một bản ghi phải được ghi vào ít nhất một bản sao trong cụm. Một bài đọc chờ phản hồi từ ít nhất một bản sao. Nó cung cấp tính khả dụng cao nhất với tính nhất quán thấp nhất.
+ 	- QUORUM: Khi phần lớn các bản sao phản hồi, yêu cầu được thực hiện. Nếu RF = 3, thì 2 bản sao phản hồi. QUORUM có thể được tính bằng công thức (n / 2 +1) trong đó n là Hệ số nhân bản.
+ 	- ONE: If one replica responds; the request is honored.
+ 	- LOCAL_ONE: Ít nhất một bản sao trong trung tâm dữ liệu cục bộ phản hồi.
+ 	- LOCAL_QUORUM: Một số bản sao trong trung tâm dữ liệu cục bộ phản hồi.
+ 	- EACH_QUORUM: (không được hỗ trợ cho các lần đọc) - Một số lượng bản sao trong TẤT CẢ các trung tâm dữ liệu phải được ghi vào.
+ 	- ALL: Một bản ghi phải được ghi cho tất cả các bản sao trong cụm, một bản đọc chờ phản hồi từ tất cả các bản sao. Cung cấp tính khả dụng thấp nhất với tính nhất quán cao nhất.
+
+  Note:
+  Bất kể Mức độ nhất quán là bao nhiêu, một bản ghi luôn được gửi đến tất cả các bản sao, như được thiết lập bởi Hệ số Nhân bản. Mức nhất quán kiểm soát khi máy khách xác nhận một hoạt động, chứ không phải số lượng bản sao thực sự được cập nhật.
+
+  Trong quá trình ghi, điều phối viên giao tiếp với các bản sao (số lượng bản sao phụ thuộc vào Hệ số sao chép). Việc ghi thành công khi số lượng bản sao được chỉ định xác nhận việc ghi.
+
+-----------------------------------------------
+  Bài 3: Terms for Review
+  Node(nút): là một đơn vị lưu trữ trong Scylla. Nó bao gồm phần mềm máy chủ cơ sở dữ liệu Scylla chạy trên máy chủ máy tính - một máy vật lý - và tất cả các hệ thống con của nó (CPU, memory, storage, network, vv) hoặc trong môi trường ảo hóa, một tập hợp con tài nguyên của máy chủ được gán cho một vùng chứa.
+
+  Cluster(cụm): 
+  Một cụm tối thiểu thường bao gồm ít nhất 3 nút. Dữ liệu được sao chép trên toàn bộ cụm, tùy thuộc vào Yếu tố sao chép
+
+  Table:
+  Bảng là cách Scylla lưu trữ dữ liệu và có thể được coi là một tập hợp các hàng và cột.
+
+  Keyspace:
+  Keyspace là một tập hợp các bảng có các thuộc tính xác định cách dữ liệu được sao chép trên các nút.
+  Nó xác định một số tùy chọn áp dụng cho tất cả các bảng mà nó chứa, trong đó nổi bật nhất là chiến lược sao chép(replication) được sử dụng bởi Keyspace.
+  Thông thường, người ta khuyến khích sử dụng một Keyspace cho mỗi ứng dụng và do đó một Cluster chỉ có thể xác định một Keyspace.
+
+  CQL:
+  Một ngôn ngữ truy vấn để tương tác với cơ sở dữ liệu Scylla (hoặc Cassandra).
+
+  CQL Shell:
+  Một dao diện command-line để tương tác với Scylla thông qua Cassandra Query Language (CQL)
+
+  Replication:
+  Quá trình sao chép dữ liệu giữa các nút trong một cụm.
+
+  Consistency Level(Mức độ nhất quán):
+  Một cài đặt có thể định cấu hình cho biết có bao nhiêu bản sao trong một Cụm phải xác nhận các thao tác đọc hoặc ghi.
+
+  Tunable Consistency(Tính nhất quán có thể điều chỉnh được):
+  Khả năng cho việc thiết lập unique, per-query, Consistency Level. 
+  Đây là những cài đặt cơ sở dữ liệu cố định gia tăng và ghi đè nhằm thực thi tính nhất quán của dữ liệu.
+  Các cài đặt như vậy có thể được đặt trực tiếp từ một câu lệnh CQL khi tốc độ phản hồi cho một truy vấn hoặc hoạt động nhất định là quan trọng hơn.
+
+  Replication Factor(RF):
+  Tổng số Nút bản sao trên một Cụm nhất định.
+  RF bằng 1 có nghĩa là dữ liệu sẽ chỉ tồn tại trên một Node duy nhất trong Cụm và thiết lập này sẽ không có bất kỳ khả năng chịu lỗi nào.
+  Hệ số sao chép được đặt cho mỗi Keyspace. 
+  Tất cả các bản sao đều có quyền ưu tiên như nhau; không có bản sao chính hoặc bản sao chính.
+
+  CAP Theorem(Định lý CAP):
+  Định lý CAP là một khái niệm chỉ ra rằng một hệ thống cơ sở dữ liệu phân tán chỉ có thể có 2 trong số 3: Tính nhất quán, Tính khả dụng và Dung sai phân vùng.
+
+  1. Question
+In case we want to maintain strong consistency, and that we can tolerate some level of failure, we would set:
+Trong trường hợp chúng tôi muốn duy trì tính nhất quán mạnh mẽ và <<<<<chúng tôi có thể chịu đựng được một số mức độ thất bại>>>, chúng tôi sẽ đặt:
+CL = QUORUM
+
+  2. Question
+In case of read and write with CL = 1:
+A read or write operation succeeds even if only one node acknowledges it
+
+  3. Question
+In the following image, what is the RF and CL?
+RF = 3, CL = QUORUM(chịu được thất bại)
+
+4. Question
+Which of the following is the most accurate?
+Both CL and RF affect performance
+
+------------------------------------------------
+Lab 1 – Overview and Setup
+demonstrate how the WRITE and READ look
+
+First, we’ll bring up a 3-node Scylla Docker cluster.
+	Set up a Docker Container with one node, called Node_X:
+	
+		docker run --name Node_X -d scylladb/scylla
+	result: 6867c75fb23c3787ee0ccf1d3e8d1c906cda6875bc325894f246ede977467336
+
+	Create two more nodes, Node_Y and Node_Z, and add them to the cluster of Node_X. The command “$(docker inspect –format='{{ .NetworkSettings.IPAddress }}’ Node_X)” translates to the IP address of Node-X:
+
+		docker run --name Node_Y -d scylladb/scylla --seeds="$(docker inspect --format='{{ .NetworkSettings.IPAddress }}' Node_X)" 
+	result: 1770b6e148fe2e3f89d43e421024e47cda76993c4742bee3136fc533c16e8435
+
+		docker run --name Node_Z -d scylladb/scylla --seeds="$(docker inspect --format='{{ .NetworkSettings.IPAddress }}' Node_X)" 
+	result: 553cc3ac7d7cfb17de60f55d819afbec13a5f5d9094f21f8c7d0ebe06d832be2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,192 @@
+=====================
+Lesstion 4: Architecture
+
+Bài học này bắt đầu với một số khái niệm và giới thiệu về Kiến trúc Scylla. Sau bài học này, bạn sẽ có thể:
+- Mô tả kiến ​​trúc Scylla
+- Giải thích tác dụng của kiến ​​trúc
+- Giải thích những gì xảy ra trong một cụm Scylla khi đọc và ghi
+- Giải thích sự phân vùng dữ liệu trong Scylla
+- Hiểu các khái niệm và thành phần khác nhau trong Scylla
+
+Scylla là một cơ sở dữ liệu phân tán ngang hàng của NoSQL, được thiết kế để xử lý dữ liệu lớn mà không có một điểm lỗi nào. Ngay cả khi xảy ra lỗi phần cứng hoặc mạng, hệ thống vẫn cung cấp Tính sẵn sàng cao.
+
+Cơ sở dữ liệu được thiết kế dựa trên một số nguyên tắc cốt lõi:
+	- Khả năng mở rộng cao(High Scalability) - hệ thống phải mở rộng theo cả chiều ngang (thêm nhiều nút hơn) cũng như theo chiều dọc (sử dụng tối ưu kiến ​​trúc nút đa lõi, đa CPU hiện đại và các thiết bị lưu trữ dung lượng cao).
+	- Tính sẵn sàng cao(High Availability) - hệ thống phải có độ trễ thấp và vẫn có thể truy cập cao cho các hoạt động ngay cả khi một hoặc nhiều nút ở trạng thái lỗi hoặc nếu có sự cố mạng.
+	- Hiệu suất cao(High performance) - hệ thống phải chạy càng gần phần cứng càng tốt để mang lại độ trễ thấp và nhất quán cũng như thông lượng rất cao.
+	- Bảo trì thấp(Low Maintenance) - hệ thống phải bao gồm các tính năng dễ sử dụng, chẳng hạn như khả năng tự quản và các phương tiện tự động, ví dụ như khả năng tự cấu hình và điều chỉnh hiệu suất của nó một cách thông minh.
+
+Nếu hầu hết các lệnh và tính năng của Scylla có vẻ quen thuộc với người dùng Apache Cassandra® thì đó là một lý do chính đáng. Scylla được thiết kế để hoàn toàn tuân thủ cấp API với Cassandra.
+
+----------------------------------------------------------
+Bài 2: Node
+image: https://university.scylladb.com/wp-content/uploads/2019/01/node.png
+Một nút là đơn vị tổ chức cơ bản của cơ sở dữ liệu Scylla. Nó bao gồm phần mềm máy chủ cơ sở dữ liệu Scylla chạy trên máy chủ máy tính.
+Mỗi nút Scylla chứa một phần nội dung của toàn bộ cụm cơ sở dữ liệu, và tồn tại một số mảnh(shards) độc lập.
+Trong Scylla tất cả các nút đều bằng nhau. Không có nút chính hoặc nút phụ và mỗi nút có thể phục vụ các yêu cầu. Tất cả các nút làm việc cùng nhau để cung cấp dịch vụ ngay cả khi một trong các nút không khả dụng do một số lỗi.
+
+Hãy kiểm tra trạng thái của các nút mà chúng ta vừa thiết lập. Để làm điều đó, chúng tôi sử dụng một công cụ gọi là Trạng thái Nodetool.
+
+Nodetool status:
+	cmd: nodetool status
+
+	Print the cluster information for a single or all keypsaces
+
+	Datacenter: datacenter1
+	=======================
+	Status=Up/Down
+	|/ State=Normal/Leaving/Joining/Moving
+	--  Address    Load       Tokens  Owns (effective)  Host ID                               Rack
+	UN  127.0.0.1  394.97 MB  256     33.4%             292a6c7f-2063-484c-b54d-9015216f1750  rack1
+	UN  127.0.0.2  151.07 MB  256     34.3%             102b6ecd-2081-4073-8172-bf818c35e27b  rack1
+	UN  127.0.0.3  249.07 MB  256     32.3%             20db6ecd-2981-447s-l172-jf118c17o27y  rack1
+
+
+	Datacenter: Trung tâm dữ liệu nào lưu trữ thông tin trên
+	Status: U for up or D for down
+	State: (N)ormal, (L)eaving , (J)oining or (M)oving
+	Address: Node IP address
+	Load: Kích thước trên đĩa mà dữ liệu Scylla có (cập nhật sau mỗi 60 giây)
+	Tokens: The number of tokens per node
+	Owns: Hiển thị phần trăm dữ liệu do nút sở hữu (mỗi trung tâm dữ liệu) nhân với hệ số sao chép mà bạn đang sử dụng Ví dụ: nút có thể sở hữu 25% vòng lặp, nhưng hiển thị 100% nếu hệ số sao chép là 4.
+	Host ID: The host network ID
+	Rack: The rack
+
+	Nodetool: https://docs.scylladb.com/operating-scylla/nodetool/
+
+---------------------------------------------------
+Bài 3: Keyspace& Table 
+Keyspace là một tập hợp các bảng có các thuộc tính xác định cách mà dữ liệu được sao chép qua các nút. Nó xác định một số tùy chọn mà để áp dụng cho tất cả các bảng mà nó chứa. Thông thường, bạn nên sử dụng một Keyspace cho mỗi ứng dụng và do đó một cụm có thể chỉ xác định một Keyspace.
+
+Bảng là cách Scylla lưu trữ dữ liệu và có thể được coi là một tập hợp các hàng và cột.
+
+
+--------------------------------------------------
+Bài 4: Cluster – Node Ring
+Cluster là một tập hợp các nút(node) mà Scylla sử dụng để lưu trữ dữ liệu.
+
+image: ring node - https://university.scylladb.com/wp-content/uploads/2019/01/1new.jpg
+
+Các nút được phân bố hợp lý giống như một chiếc vòng. Một cụm tối thiểu thường bao gồm ít nhất ba nút. Dữ liệu được tự động sao chép(replicated) trên toàn bộ cụm, tùy thuộc vào Replication Factor.
+
+Cluster thường được biết đến như là một kiến ​​trúc vòng, dựa trên một vòng băm - là cách mà cụm biết cách phân phối dữ liệu trên các nút khác nhau.
+
+This cluster is often referred to as a ring architecture, based on a hash ring — the way the cluster knows how to distribute data across the different nodes.
+
+hash ring: https://docs.scylladb.com/_images/ring-architecture-2.png
+
+Một cụm có thể thay đổi kích thước theo thời gian, thêm nhiều nút hơn (để mở rộng khả năng lưu trữ và xử lý) hoặc xóa các nút (thông qua việc ngừng hoạt động có mục đích hoặc lỗi hệ thống).
+
+Khi xảy ra thay đổi cấu trúc liên kết, cụm Scylla được thiết kế để tự động cấu hình lại và cân bằng lại dữ liệu được lưu giữ bên trong nó.
+
+Một cụm Scylla có thể chứa tối thiểu ba nút, nhưng nó cũng có thể có hàng trăm nút trong đó.
+
+Trong cụm Scylla, tất cả các giao tiếp giữa các node đều là ngang hàng, vì vậy không có điểm nào bị lỗi. 
+Đối với giao tiếp bên ngoài cụm, chẳng hạn như đọc hoặc ghi, một máy khách Scylla sẽ giao tiếp với một nút máy chủ duy nhất, được gọis là bộ điều phối.
+Việc lựa chọn bộ điều phối được thực hiện với mỗi yêu cầu kết nối máy khách để ngăn chặn các yêu cầu tắc nghẽn thông qua một nút duy nhất. Điều này sẽ được giải thích thêm ở phần sau của bài học này.
+
+Khóa phân vùng(A Partition Key) là một hoặc nhiều cột chịu trách nhiệm phân phối dữ liệu qua các nút.
+Nó xác định những nút nào sẽ lưu trữ một hàng nhất định.
+Như chúng ta sẽ thấy ở phần sau, thông thường, dữ liệu được sao chép và các bản sao được lưu trữ trên nhiều nút. Điều này có nghĩa là ngay cả khi một nút bị hỏng, dữ liệu vẫn có sẵn. Nó đảm bảo độ tin cậy và khả năng chịu lỗi.
+
+Trong ví dụ bên dưới, Khóa phân vùng là cột ID. Một hàm băm nhất quán được sử dụng để xác định dữ liệu nút nào được ghi.
+
+Scylla phân vùng dữ liệu một cách minh bạch và phân phối nó vào cụm. Dữ liệu được sao chép trên toàn bộ cụm. Một cụm Scylla được hình dung như một vòng, trong đó mỗi nút chịu trách nhiệm cho một loạt các mã(token) thông báo và mỗi giá trị được gắn với một mã(token) thông báo bằng cách sử dụng khóa phân vùng:
+
+image: https://docs.scylladb.com/_images/ring-architecture-2.png
+
+Tìm hiểu thêm vòng băm.
+
+
+-------------------------------------------------------
+Bài 5: Data Replication
+Để đảm bảo không có điểm lỗi nào, dữ liệu được sao chép.
+Sao chép có nghĩa là lưu trữ các bản sao dữ liệu trên nhiều nút.
+Điều này có nghĩa là ngay cả khi một nút bị hỏng, dữ liệu vẫn có sẵn.
+Nó đảm bảo độ tin cậy và khả năng chịu lỗi.
+Replication Factor xác định số lượng bản sao của dữ liệu.
+
+Ví dụ, hệ số sao chép(replication factor) là 3 (RF = 3) có nghĩa là ba bản sao của dữ liệu được lưu trữ tại mọi thời điểm.
+Một user thiết lập RF cho một keyspace cụ thể. Tùy thuộc vào cài đặt RF đó, điều phối viên sau đó sẽ chia sẻ dữ liệu với các nút khác, được gọi là bản sao(replicas), để tạo ra các bản sao của dữ liệu để chịu lỗi.
+
+(high availability,  replication, and consistency)
+
+Hands-on: Create keyspace, read and write data
+
+Chúng tôi sẽ sử dụng cụm đã tạo trước đó và trình bao CQL để tạo không gian khóa.
+	docker exec -it Node_Z cqlsh 
+
+Tạo một không gian khóa được gọi là “mykeyspace” với RF là ba:
+	CREATE KEYSPACE mykeyspace WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'replication_factor' : 3};
+
+Hãy xem rằng không gian khóa được tạo với RF gồm ba:
+	use mykeyspace; 
+	DESCRIBE KEYSPACE;
+
+Tiếp theo, tạo một bảng có ba cột: id người dùng, tên và họ và chèn một số dữ liệu:
+	CREATE TABLE users ( user_id int, fname text, lname text, PRIMARY KEY((user_id))); 
+
+Chèn vào bảng mới tạo hai hàng:
+	insert into users(user_id, fname, lname) values (1, 'rick', 'sanchez'); 
+	insert into users(user_id, fname, lname) values (4, 'rust', 'cohle'); 	
+
+Read the table contents:
+
+	select * from users;
+
+
+----------------------------------------------------------------------------
+Bài 6: Shard
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

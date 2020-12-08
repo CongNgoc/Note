@@ -1,0 +1,31 @@
+Scylla là một cơ sở dữ liệu mà tương lai dữ liệu lưu trữ sẽ tăng lên và phình to. 
+Trong thế giới của dữ liệu lớn, một nút duy nhất không thể chứa toàn bộ tập dữ liệu và do đó, cần phải có một cụm nút.
+
+Cụm Scylla là một tập hợp các nút, hoặc các cá thể Scylla, được hình dung như một vòng.
+Tất cả các nút phải đồng nhất bằng cách sử dụng phương pháp không chia sẻ.
+Bài viết này mô tả thiết kế xác định cách dữ liệu được phân phối giữa các thành viên cụm.
+
+A Scylla keyspace là một tập hợp các bảng với các thuộc tính xác định cách dữ liệu được sao chép(replicated) trên các nút. Một keyspace tương tự như một cơ sở dữ liệu(database) trong SQL. 
+
+Khi một keyspace mới được tạo, người dùng đặt một số thuộc tính trong đó có RF, cái mà xác định cách dữ liệu được sao chép trên các nút.
+
+A table is a standard collection of columns and rows, as defined by a schema.   
+
+Sau đó, khi một bảng được tạo bằng cách sử dụng CQL (Ngôn ngữ truy vấn Cassandra) trong một keyspace, , a primary key is defined out of a subset of the table’s columns(là 1 trong các cột của bảng).
+
+Trong một CQL table,  primary key là 
+
+partition key column và cũng có thể clustering key columns.
+
+primary key là duy nhất 
+
+
+https://docs.scylladb.com/architecture/ringarchitecture/
+
+https://www.scylladb.com/2020/02/20/nauto-achieving-consistency-in-an-eventually-consistent-environment/
+
+https://www.scylladb.com/2018/10/04/running-scylla-on-the-dc-os-distributed-operating-system/
+
+
+
+
